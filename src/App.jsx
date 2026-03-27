@@ -31,6 +31,10 @@ function App() {
     setTransactions([...transactions, newTransaction]);
   };
 
+  const handleDeleteTransaction = (transactionId) => {
+    setTransactions(transactions.filter((transaction) => transaction.id !== transactionId));
+  };
+
 
   return (
     <div className="app">
@@ -41,7 +45,11 @@ function App() {
 
       <TransactionForm categories={categories} onSubmit={handleAddTransaction} />
 
-      <TransactionList transactions={transactions} categories={categories} />
+      <TransactionList
+        transactions={transactions}
+        categories={categories}
+        onDeleteTransaction={handleDeleteTransaction}
+      />
     </div>
   );
 }
