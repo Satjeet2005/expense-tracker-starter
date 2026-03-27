@@ -24,21 +24,31 @@ This file provides guidance to AI coding agents like Claude Code (claude.ai/code
 ## High-Level Architecture
 
 - Entry point is `src/main.jsx`, which mounts the app using `createRoot(...)` and wraps `App` in `StrictMode`.
-- `src/App.jsx` is the core of the application and currently contains:
-  - seed transaction data
-  - all UI state (`useState`)
-  - derived values (income, expenses, balance)
-  - filtering logic
-  - form submit handling and transaction creation
-  - rendering for summary cards, form, filters, and transaction table
+- `src/App.jsx` is now an orchestration layer:
+  - owns the `transactions` collection and static `categories`
+  - appends new transactions via `handleAddTransaction`
+  - composes child components instead of rendering all sections inline
+- `src/components/Summary.jsx`:
+  - receives `transactions`
+  - computes `totalIncome`, `totalExpenses`, and `balance`
+  - renders the summary cards
+- `src/components/TransactionForm.jsx`:
+  - owns form-local state (`description`, `amount`, `type`, `category`)
+  - validates and parses form input (`amount` string -> number)
+  - emits normalized payload through `onSubmit`
+- `src/components/TransactionList.jsx`:
+  - receives `transactions` and `categories`
+  - owns list-local filter state (`filterType`, `filterCategory`)
+  - renders filtered transactions table
 - Styling is split between `src/index.css` (global/base styles) and `src/App.css` (component/page styles).
 
 ## Data Model and Behavior Notes
 
-- Transaction shape in `App.jsx`:
+- Transaction shape:
   - `id`, `description`, `amount`, `type`, `category`, `date`
-- `amount` is currently stored as a string in seeded data and when adding new items. Any math over `amount` should account for numeric conversion.
-- Filtering is a two-step in-memory filter:
+- Seeded and stored transaction `amount` values are numbers.
+- Form input amount starts as a string (HTML input behavior) and is converted to number in `TransactionForm` before submission.
+- Filtering is two-step in-memory filtering inside `TransactionList`:
   - first by `filterType`
   - then by `filterCategory`
 - No persistence layer exists (reload resets data to seed state).
@@ -55,7 +65,10 @@ This file provides guidance to AI coding agents like Claude Code (claude.ai/code
 ## Important Source Files
 
 - App bootstrap: `src/main.jsx`
-- Main app logic and rendering: `src/App.jsx`
+- App orchestration and transaction state: `src/App.jsx`
+- Summary calculations and summary UI: `src/components/Summary.jsx`
+- Add transaction form and validation: `src/components/TransactionForm.jsx`
+- Transaction filters and table: `src/components/TransactionList.jsx`
 - Lint config: `eslint.config.js`
 - Vite config: `vite.config.js`
 - Project setup/context: `README.md`
